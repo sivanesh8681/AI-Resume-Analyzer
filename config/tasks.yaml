@@ -1,0 +1,81 @@
+analyze_resume:
+  description: >
+    Analyze the uploaded resume at {file_path} against the provided requirements.
+    Focus on:
+    1. Technical skills alignment
+    2. ATS compatibility issues
+    3. Keyword optimization
+    4. Project relevance
+    5. Formatting and structure
+    6. Missing certifications or skills
+    Provide detailed analysis with specific examples.
+  expected_output: >
+    A comprehensive analysis report including:
+    - Strengths (5-7 specific points)
+    - Weaknesses (5-7 specific points)  
+    - ATS compatibility score (1-10)
+    - Missing keywords list
+    - Formatting recommendations
+  agent: resume_analyzer
+
+enhance_resume:
+  description: >
+    Based on the analysis results, provide specific improvement suggestions for the resume.
+    Focus on:
+    1. Specific keyword additions
+    2. Project description improvements
+    3. Skills section enhancements
+    4. ATS optimization techniques
+    5. Formatting improvements
+    6. Achievement quantification
+  expected_output: >
+    Detailed improvement suggestions including:
+    - Specific text replacements
+    - Keyword additions with context
+    - Project description rewrites
+    - Skills prioritization
+    - Achievement quantification examples
+  agent: resume_enhancer
+  context:
+    - analyze_resume
+
+generate_resume:
+  description: >
+    Generate an enhanced version of the original resume incorporating the improvement suggestions.
+    Requirements:
+    1. Maintain original information authenticity
+    2. Improve ATS compatibility
+    3. Optimize keyword density
+    4. Create clean, professional formatting
+    5. Ensure single-page layout (if possible)
+    6. Preserve candidate's voice and style
+  expected_output: >
+    A complete enhanced resume in both markdown format for review and 
+    structured data for DOCX/PDF generation including:
+    - Enhanced content with improvements
+    - ATS-optimized formatting
+    - Improved project descriptions
+    - Optimized skills section
+    - Professional summary enhancement
+  agent: resume_generator
+  context:
+    - analyze_resume
+    - enhance_resume
+
+research_jobs:
+  description: >
+    Search for current AI/Data Science entry-level and fresher job postings to identify:
+    1. Most demanded skills
+    2. Common requirements
+    3. Popular technologies
+    4. Certification preferences
+    5. Project expectations
+    Use web search to find 5-8 relevant job postings.
+  expected_output: >
+    A comprehensive job market analysis including:
+    - Top 15 most mentioned skills
+    - Common requirements across postings
+    - Emerging technologies
+    - Preferred certifications
+    - Typical project types mentioned
+  agent: web_researcher

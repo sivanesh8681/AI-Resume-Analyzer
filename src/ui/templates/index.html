@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Analyzer & Enhancer</title>
+    <style>
+        /* Reset and global styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+        }
+
+        body {
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1200px;
+            margin: 20px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            color: #4a90e2;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        #alert {
+            display: none;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .upload-section, .analysis-section {
+            flex: 1 1 48%;
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.05);
+        }
+
+        .upload-section h2, .analysis-section h2 {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #4a90e2;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px;
+            background: #eef6fd;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .file-upload-area:hover {
+            background: #d9ebfa;
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            font-size: 0.95rem;
+            color: #444;
+        }
+
+        .file-info {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #444;
+            display: none;
+        }
+
+        .mode-selection {
+            margin-top: 20px;
+        }
+
+        .mode-selection h3 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .mode-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .mode-option {
+            flex: 1;
+            background: #fff;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-option.selected {
+            border-color: #4a90e2;
+            background: #eef6fd;
+        }
+
+        .mode-option h3 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .analyze-btn, .generate-btn, .download-btn {
+            width: 100%;
+            padding: 12px;
+            background: #4a90e2;
+            color: #fff;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s ease;
+        }
+
+        .analyze-btn:hover, .generate-btn:hover, .download-btn:hover {
+            background: #357ab8;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 5px solid #eee;
+            border-top: 5px solid #4a90e2;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .analysis-results {
+            display: none;
+        }
+
+        .score-card {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4a90e2;
+        }
+
+        .score-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section h3 {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .list-item {
+            background: #eef6fd;
+            padding: 8px;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .download-section {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .download-btn {
+            display: inline-block;
+            text-decoration: none;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #28a745;
+            border-radius: 6px;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .download-btn:hover {
+            background: #218838;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .main-content {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 AI Resume Analyzer</h1>
+            <p>Optimize your resume for AI/Data Science roles with intelligent analysis and enhancement</p>
+        </div>
+
+        <div id="alert" class="alert"></div>
+
+        <div class="main-content">
+            <div class="upload-section">
+                <h2>📁 Upload Resume</h2>
+                
+                <div class="file-upload-area" id="uploadArea">
+                    <div class="upload-icon">📄</div>
+                    <div class="upload-text">
+                        <strong>Drag & drop your resume here</strong><br>
+                        or click to select a file<br>
+                        <small>Supports PDF and DOCX files</small>
+                    </div>
+                </div>
+                
+                <input type="file" id="fileInput" accept=".pdf,.docx" style="display: none;">
+                
+                <div class="file-info" id="fileInfo">
+                    <strong>Selected file:</strong> <span id="fileName"></span><br>
+                    <strong>Size:</strong> <span id="fileSize"></span>
+                </div>
+
+                <div class="mode-selection">
+                    <h3>Analysis Mode</h3>
+                    <div class="mode-options">
+                        <div class="mode-option selected" data-mode="static">
+                            <h3>⚡ Quick Analysis</h3>
+                            <p>Fast analysis using comprehensive knowledge base</p>
+                        </div>
+                        <div class="mode-option" data-mode="web">
+                            <h3>🌐 Web-Enhanced</h3>
+                            <p>Real-time job market analysis (slower)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="analyze-btn" id="analyzeBtn" disabled>
+                    🔍 Analyze Resume
+                </button>
+            </div>
+
+            <div class="analysis-section">
+                <h2>📊 Analysis Results</h2>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing your resume... This may take a few moments.</p>
+                </div>
+
+                <div class="analysis-results" id="analysisResults">
+                    <div class="score-card">
+                        <div class="score-item">
+                            <div class="score-number" id="atsScore">-</div>
+                            <div class="score-label">ATS Score</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-number" id="strengthCount">-</div>
+                            <div class="score-label">Strengths</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-number" id="improvementCount">-</div>
+                            <div class="score-label">Improvements</div>
+                        </div>
+                    </div>
+
+                    <div class="section strengths" id="strengthsSection">
+                        <h3>✅ Strengths</h3>
+                        <div id="strengthsList"></div>
+                    </div>
+
+                    <div class="section weaknesses" id="weaknessesSection">
+                        <h3>⚠️ Areas for Improvement</h3>
+                        <div id="weaknessesList"></div>
+                    </div>
+
+                    <div class="section keywords" id="keywordsSection">
+                        <h3>🔑 Missing Keywords</h3>
+                        <div id="keywordsList"></div>
+                    </div>
+
+                    <button class="generate-btn" id="generateBtn">
+                        🎯 Generate Enhanced Resume
+                    </button>
+
+                    <div class="download-section" id="downloadSection">
+                        <h3>✅ Enhanced Resume Ready!</h3>
+                        <p>Your optimized resume has been generated successfully.</p>
+                        <a href="#" class="download-btn" id="downloadBtn">⬇️ Download Resume</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        let analysisMode = 'static';
+        let analysisData = null;
+
+        // DOM elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const modeOptions = document.querySelectorAll('.mode-option');
+        const loading = document.getElementById('loading');
+        const analysisResults = document.getElementById('analysisResults');
+        const generateBtn = document.getElementById('generateBtn');
+        const downloadSection = document.getElementById('downloadSection');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const alert = document.getElementById('alert');
+
+        // File upload handlers
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('drop', handleDrop);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        fileInput.addEventListener('change', handleFileSelect);
+
+        // Mode selection
+        modeOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                modeOptions.forEach(o => o.classList.remove('selected'));
+                option.classList.add('selected');
+                analysisMode = option.dataset.mode;
+            });
+        });
+
+        // Action buttons
+        analyzeBtn.addEventListener('click', analyzeResume);
+        generateBtn.addEventListener('click', generateResume);
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        function handleFile(file) {
+            const validTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            
+            if (!validTypes.includes(file.type)) {
+                showAlert('Please select a PDF or DOCX file.', 'error');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                showAlert('File size must be less than 10MB.', 'error');
+                return;
+            }
+
+            selectedFile = file;
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.style.display = 'block';
+            analyzeBtn.disabled = false;
+            
+            uploadArea.innerHTML = `
+                <div class="upload-icon">✅</div>
+                <div class="upload-text">
+                    <strong>File ready for analysis</strong><br>
+                    Click "Analyze Resume" to continue
+                </div>
+            `;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        async function analyzeResume() {
+            if (!selectedFile) return;
+
+            loading.style.display = 'block';
+            analysisResults.style.display = 'none';
+            analyzeBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('mode', analysisMode);
+
+            try {
+                const response = await fetch('/upload-resume', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    analysisData = result.analysis;
+                    displayAnalysis(result.analysis);
+                    showAlert('Resume analysis completed successfully!', 'success');
+                } else {
+                    throw new Error(result.message || 'Analysis failed');
+                }
+            } catch (error) {
+                console.error('Analysis error:', error);
+                showAlert('Analysis failed. Please try again.', 'error');
+            } finally {
+                loading.style.display = 'none';
+                analyzeBtn.disabled = false;
+            }
+        }
+
+        function displayAnalysis(analysis) {
+            // Update scores
+            document.getElementById('atsScore').textContent = (analysis.ats_score !== undefined && analysis.ats_score !== null) ? analysis.ats_score : 'N/A';
+            document.getElementById('strengthCount').textContent = analysis.strengths?.length || 0;
+            document.getElementById('improvementCount').textContent = analysis.improvements?.length || 0;
+
+            // Display strengths
+            const strengthsList = document.getElementById('strengthsList');
+            strengthsList.innerHTML = '';
+            if (analysis.strengths) {
+                analysis.strengths.forEach(strength => {
+                    const item = document.createElement('div');
+                    item.className = 'list-item';
+                    item.textContent = strength.replace(/^-\s*/, '');
+                    strengthsList.appendChild(item);
+                });
+            }
+
+            // Display improvements
+            const weaknessesList = document.getElementById('weaknessesList');
+            weaknessesList.innerHTML = '';
+            if (analysis.improvements) {
+                analysis.improvements.forEach(improvement => {
+                    const item = document.createElement('div');
+                    item.className = 'list-item';
+                    item.textContent = improvement.replace(/^-\s*/, '');
+                    weaknessesList.appendChild(item);
+                });
+            }
+
+            // Display missing keywords
+            const keywordsList = document.getElementById('keywordsList');
+            keywordsList.innerHTML = '';
+            if (analysis.missing_keywords) {
+                analysis.missing_keywords.forEach(keyword => {
+                    const item = document.createElement('div');
+                    item.className = 'list-item';
+                    item.textContent = keyword;
+                    keywordsList.appendChild(item);
+                });
+            }
+
+            analysisResults.style.display = 'block';
+        }
+
+        async function generateResume() {
+            if (!analysisData) return;
+
+            generateBtn.disabled = true;
+            generateBtn.textContent = '🔄 Generating...';
+
+            try {
+                const response = await fetch('/generate-resume', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        filename: selectedFile.name,
+                        improvements: analysisData.improvements || analysisData.weaknesses
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    downloadBtn.href = result.download_url;
+                    downloadSection.style.display = 'block';
+                    showAlert('Enhanced resume generated successfully!', 'success');
+                } else {
+                    throw new Error(result.message || 'Generation failed');
+                }
+            } catch (error) {
+                console.error('Generation error:', error);
+                showAlert('Resume generation failed. Please try again.', 'error');
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = '🎯 Generate Enhanced Resume';
+            }
+        }
+
+        function showAlert(message, type) {
+            alert.textContent = message;
+            alert.className = `alert alert-${type}`;
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
